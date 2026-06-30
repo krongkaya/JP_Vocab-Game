@@ -187,6 +187,13 @@ function App() {
   } | null>(null);
   const [gameOver, setGameOver] = useState(false);
   const [showingHint, setShowingHint] = useState(false);
+  
+  // New Gameplay states (Power-ups & Fever)
+  const [usedHint, setUsedHint] = useState(false);
+  const [isFrozen, setIsFrozen] = useState(false);
+  const [floatingTexts, setFloatingTexts] = useState<Array<{ id: number, x: number, y: number, text: string, type: 'combo' | 'score' | 'powerup' }>>([]);
+  let floatingIdCounter = useRef(0);
+
   const [combo, setCombo] = useState(0);
   const [maxCombo, setMaxCombo] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
@@ -198,8 +205,7 @@ function App() {
 
   // Gacha state
   const [activeTab, setActiveTab] = useState<'gacha' | 'cats'>('gacha');
-  const [cranking, setCranking] = useState(false);
-  const [dispensing, setDispensing] = useState(false);
+  const [gachaState, setGachaState] = useState<'idle' | 'shaking' | 'revealed'>('idle');
   const [rolledCat, setRolledCat] = useState<CatItem | null>(null);
   const [collectionError, setCollectionError] = useState<string | null>(null);
 
@@ -210,8 +216,20 @@ function App() {
   const activeCat = catList.find(c => c.id === activeCatId) || catList[0];
   const maxLivesForCat = activeCatId === 'samurai' ? 4 : 3;
 
-  // Timer speed: Bullet Cat slows it down
-  const timerDecayRate = activeCatId === 'neko_shikansen' ? 0.35 : 0.5;
+  // Fever Mode logic
+  const isFeverMode = combo >= 5;
+
+  // Timer speed: Bullet Cat slows it down, Fever speeds it up
+  let timerDecayRate = activeCatId === 'neko_shikansen' ? 0.35 : 0.5;
+  if (isFeverMode) timerDecayRate *= 1.5; // Fever makes it harder!
+
+  const addFloatingText = (text: string, type: 'combo' | 'score' | 'powerup', x: number = 50, y: number = 30) => {
+    const id = floatingIdCounter.current++;
+    setFloatingTexts(prev => [...prev, { id, text, type, x, y }]);
+    setTimeout(() => {
+      setFloatingTexts(prev => prev.filter(ft => ft.id !== id));
+    }, 1500);
+  };
 
   // ============================
   // Persistence
@@ -233,7 +251,7 @@ function App() {
 
   // Timer logic
   useEffect(() => {
-    if (timerActive && !selectedAns && !gameOver && !victoryStatus) {
+    if (timerActive && !selectedAns && !gameOver && !victoryStatus && !isFrozen) {
       timerRef.current = setInterval(() => {
         setTimerValue(prev => {
           const next = prev - timerDecayRate;
@@ -249,7 +267,7 @@ function App() {
       }, 100);
     }
     return () => { if (timerRef.current) clearInterval(timerRef.current); };
-  }, [timerActive, selectedAns, gameOver, victoryStatus, currentQIndex]);
+  }, [timerActive, selectedAns, gameOver, victoryStatus, currentQIndex, isFrozen, timerDecayRate]);
 
   const handleTimeUp = useCallback(() => {
     if (selectedAns || gameOver || victoryStatus) return;
@@ -312,6 +330,8 @@ function App() {
     setShowCorrectAnswer(null);
     setNekoGameMood('idle');
     setTimerValue(100);
+    setUsedHint(false);
+    setIsFrozen(false);
 
     const pool = [...level.vocab].sort(() => 0.5 - Math.random());
     const questions = pool.map(item => {
@@ -342,6 +362,8 @@ function App() {
       setShowCorrectAnswer(null);
       setTimerValue(100);
       setNekoGameMood('idle');
+      setUsedHint(false);
+      setIsFrozen(false);
       setTimerActive(true);
       speakJapanese(gameQuestions[nextIdx].vocab.word);
     } else {
@@ -384,11 +406,21 @@ function App() {
       // Score: base 10 + combo bonus + time bonus
       const timeBonus = Math.floor(timerValue / 10);
       const comboBonus = Math.min(newCombo, 5) * 2;
-      const pointsEarned = 10 + timeBonus + comboBonus;
-      setScore(s => s + pointsEarned);
+      let pointsEarned = 10 + timeBonus + comboBonus;
+      let coinsEarned = activeCatId === 'black' ? 2 : 1;
 
-      // Coins: Black Cat +2, else +1
-      setCoins(c => c + (activeCatId === 'black' ? 2 : 1));
+      if (isFeverMode) {
+        pointsEarned *= 2;
+        coinsEarned *= 2;
+      }
+
+      setScore(s => s + pointsEarned);
+      setCoins(c => c + coinsEarned);
+      
+      addFloatingText(`+${pointsEarned}`, 'score');
+      if (newCombo >= 2) {
+        setTimeout(() => addFloatingText(`${newCombo} Combo!`, 'combo'), 200);
+      }
 
       setTimeout(() => advanceQuestion(), 1200);
     } else {
@@ -406,6 +438,24 @@ function App() {
         setTimeout(() => advanceQuestion(), 1800);
       }
     }
+  };
+
+  const handleUseHint = () => {
+    if (usedHint || coins < 10 || selectedAns || gameOver) return;
+    sfx.click();
+    setCoins(c => c - 10);
+    setUsedHint(true);
+    addFloatingText('-10', 'powerup', 20, 80);
+    
+    // Logic to visually remove 2 wrong options is handled in render
+  };
+
+  const handleUseFreeze = () => {
+    if (isFrozen || coins < 5 || selectedAns || gameOver) return;
+    sfx.click();
+    setCoins(c => c - 5);
+    setIsFrozen(true);
+    addFloatingText('❄️ Frozen', 'powerup', 80, 80);
   };
 
   const finishLevel = () => {
@@ -437,7 +487,7 @@ function App() {
   // Gacha
   // ============================
   const rollGacha = () => {
-    if (cranking || dispensing) return;
+    if (gachaState !== 'idle') return;
     const cost = 80;
     if (coins < cost) {
       sfx.wrong();
@@ -446,27 +496,24 @@ function App() {
     }
     sfx.click();
     setCoins(c => c - cost);
-    setCranking(true);
+    setGachaState('shaking');
     setCollectionError(null);
     setRolledCat(null);
 
+    // Shake for 2.5 seconds before revealing
     setTimeout(() => {
-      setCranking(false);
-      setDispensing(true);
       sfx.coin();
-      setTimeout(() => {
-        setDispensing(false);
-        const rand = Math.random() * 100;
-        let rarity: CatItem['rarity'] = "Common";
-        if (rand > 90) rarity = "Epic";
-        else if (rand > 60) rarity = "Rare";
-        const pool = catList.filter(c => c.rarity === rarity);
-        const rolled = pool[Math.floor(Math.random() * pool.length)];
-        if (!unlockedCats.includes(rolled.id)) setUnlockedCats(p => [...p, rolled.id]);
-        setRolledCat(rolled);
-        sfx.victory();
-      }, 800);
-    }, 1000);
+      const rand = Math.random() * 100;
+      let rarity: CatItem['rarity'] = "Common";
+      if (rand > 90) rarity = "Epic";
+      else if (rand > 60) rarity = "Rare";
+      const pool = catList.filter(c => c.rarity === rarity);
+      const rolled = pool[Math.floor(Math.random() * pool.length)];
+      if (!unlockedCats.includes(rolled.id)) setUnlockedCats(p => [...p, rolled.id]);
+      setRolledCat(rolled);
+      setGachaState('revealed');
+      sfx.victory();
+    }, 2500);
   };
 
   // ============================
@@ -599,7 +646,15 @@ function App() {
 
       {/* ===== GAME ===== */}
       {screen === 'game' && currentLevel && gameQuestions.length > 0 && (
-        <div className="screen game-container">
+        <div className={`screen game-container ${isFeverMode ? 'fever-mode' : ''}`}>
+          
+          {/* Floating Texts */}
+          {floatingTexts.map(ft => (
+            <div key={ft.id} className={`floating-text ${ft.type}`} style={{ left: `${ft.x}%`, top: `${ft.y}%` }}>
+              {ft.text}
+            </div>
+          ))}
+
           <div>
             {/* Timer bar */}
             <div className="timer-bar-container">
@@ -654,6 +709,17 @@ function App() {
               {gameQuestions[currentQIndex]?.options.map((option, idx) => {
                 const currentVocab = gameQuestions[currentQIndex].vocab;
                 const isCorrectOption = option === currentVocab.meaningTh;
+                
+                // If 50/50 hint is used, hide 2 wrong options
+                let isHiddenByHint = false;
+                if (usedHint && !isCorrectOption) {
+                  const wrongOptions = gameQuestions[currentQIndex].options.filter(o => o !== currentVocab.meaningTh);
+                  // Hide the first two wrong options
+                  if (option === wrongOptions[0] || option === wrongOptions[1]) {
+                    isHiddenByHint = true;
+                  }
+                }
+
                 // Find emoji for this option from the level vocab
                 const matchingVocab = currentLevel?.vocab.find(v => v.meaningTh === option);
                 const optionEmoji = matchingVocab?.emoji ?? ['🍣', '🍙', '🍡', '🍥'][idx];
@@ -662,6 +728,9 @@ function App() {
                   if (isCorrectOption) cls = "correct-choice";
                   else if (selectedAns === option) cls = "wrong-choice";
                 }
+                
+                if (isHiddenByHint) return <div key={idx} className="sushi-plate-btn hidden-hint" />;
+
                 return (
                   <button
                     key={idx}
@@ -678,7 +747,7 @@ function App() {
           </div>
 
           {/* Feedback / Hint area */}
-          <div style={{ minHeight: '60px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ minHeight: '80px', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
             {ansStatus === 'correct' && (
               <div className="feedback-overlay correct">
                 ✨ ถูกต้อง! {combo >= 3 ? `x${combo} コンボ!` : 'อร่อยจังเหมียว~'}
@@ -695,9 +764,25 @@ function App() {
               </>
             )}
             {!ansStatus && !showingHint && (
-              <button className="btn btn-outline btn-sm" onClick={() => { setShowingHint(true); sfx.click(); }}>
-                <Info size={14} /> ขอคำใบ้หน่อยเหมียว
-              </button>
+              <div className="powerups-container">
+                <button 
+                  className={`btn btn-sm btn-powerup ${usedHint || coins < 10 ? 'disabled' : ''}`}
+                  onClick={handleUseHint}
+                  disabled={usedHint || coins < 10 || selectedAns !== null}
+                >
+                  <Info size={14} /> 50/50 (10🪙)
+                </button>
+                <button 
+                  className={`btn btn-sm btn-powerup ${isFrozen || coins < 5 ? 'disabled' : ''}`}
+                  onClick={handleUseFreeze}
+                  disabled={isFrozen || coins < 5 || selectedAns !== null}
+                >
+                  ❄️ แช่แข็ง (5🪙)
+                </button>
+                <button className="btn btn-outline btn-sm" onClick={() => { setShowingHint(true); sfx.click(); }}>
+                  💡 ความหมาย
+                </button>
+              </div>
             )}
             {!ansStatus && showingHint && (
               <div className="answer-detail" style={{ marginTop: 0 }}>
@@ -793,17 +878,21 @@ function App() {
 
           <div className="custom-scroll" style={{ flex: 1 }}>
             {activeTab === 'gacha' && (
-              <div className="gacha-machine-box">
+              <div className={`gacha-machine-box ${gachaState === 'shaking' ? 'shaking' : ''}`}>
                 <div className="gacha-dome">
                   <div className="gacha-capsules-inside">
                     {Array.from({ length: 12 }).map((_, i) => <div key={i} className="capsule-mini" />)}
                   </div>
                 </div>
-                <div className={`gacha-lever-dial ${cranking ? 'cranking' : ''}`} onClick={rollGacha}>
-                  หมุน!
-                </div>
+                
+                {gachaState === 'shaking' ? (
+                  <div className="gacha-lever-dial cranking">กำลังสุ่ม...</div>
+                ) : (
+                  <div className="gacha-lever-dial" onClick={rollGacha}>หมุน!</div>
+                )}
+                
                 <div className="gacha-slot">
-                  {dispensing && <div className="gacha-slot-received" />}
+                  {gachaState === 'revealed' && <div className="gacha-slot-received" />}
                 </div>
                 <p className="gacha-cost-label">
                   สุ่มครั้งละ 80 🪙 · มี {catList.length - unlockedCats.length} ตัวที่ยังไม่ปลดล็อค
@@ -866,7 +955,7 @@ function App() {
                 <button
                   className="btn"
                   style={{ width: '100%', backgroundColor: rolledCat.textColor, color: 'white' }}
-                  onClick={() => { sfx.click(); setActiveCatId(rolledCat.id); setRolledCat(null); }}
+                  onClick={() => { sfx.click(); setActiveCatId(rolledCat.id); setRolledCat(null); setGachaState('idle'); }}
                 >
                   พาเหมียวไปด้วยกัน!
                 </button>

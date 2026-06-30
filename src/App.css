@@ -810,12 +810,108 @@
 }
 
 .gameover-title {
-  font-family: var(--font-jp);
+  color: var(--danger);
   font-size: 26px;
   font-weight: 900;
-  color: var(--danger);
+  margin: 0 0 16px;
 }
 
+/* ============================================
+   POWER-UPS & DYNAMIC FEEDBACK
+   ============================================ */
+.powerups-container {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.btn-powerup {
+  background: var(--bg-card);
+  border: 2px solid var(--border-strong);
+  color: var(--text-main);
+  box-shadow: var(--shadow-sm);
+}
+
+.btn-powerup:not(.disabled):hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary);
+}
+
+.btn-powerup.disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+.hidden-hint {
+  opacity: 0.1;
+  pointer-events: none;
+  transform: scale(0.9);
+  transition: all 0.3s ease;
+}
+
+.floating-text {
+  position: absolute;
+  font-weight: 900;
+  font-size: 24px;
+  pointer-events: none;
+  z-index: 1000;
+  animation: floatUpFade 1.5s ease-out forwards;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+  transform: translate(-50%, -50%);
+}
+
+.floating-text.score { color: #ffeb3b; }
+.floating-text.combo { color: #ff9800; font-size: 28px; animation: bounceFloat 1.5s ease-out forwards; }
+.floating-text.powerup { color: #00bcd4; font-size: 20px; }
+
+@keyframes floatUpFade {
+  0% { transform: translate(-50%, -50%) scale(0.5); opacity: 0; }
+  20% { transform: translate(-50%, -60%) scale(1.2); opacity: 1; }
+  100% { transform: translate(-50%, -120%) scale(1); opacity: 0; }
+}
+
+@keyframes bounceFloat {
+  0% { transform: translate(-50%, -50%) scale(0); opacity: 0; }
+  30% { transform: translate(-50%, -60%) scale(1.4); opacity: 1; }
+  50% { transform: translate(-50%, -55%) scale(1); opacity: 1; }
+  100% { transform: translate(-50%, -100%) scale(1); opacity: 0; }
+}
+
+/* === FEVER MODE === */
+.fever-mode {
+  animation: feverPulse 2s infinite alternate;
+  position: relative;
+}
+
+.fever-mode::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(circle at center, rgba(255, 215, 0, 0.15) 0%, transparent 70%);
+  pointer-events: none;
+  z-index: 0;
+  animation: feverSpin 4s linear infinite;
+}
+
+.fever-mode .score-display {
+  color: #ff9800;
+  text-shadow: 0 0 10px rgba(255, 152, 0, 0.5);
+  transform: scale(1.1);
+  transition: all 0.3s;
+}
+
+@keyframes feverPulse {
+  0% { box-shadow: inset 0 0 0 0 rgba(255, 215, 0, 0); }
+  100% { box-shadow: inset 0 0 20px 4px rgba(255, 215, 0, 0.4); border-color: #ffc107; }
+}
+
+@keyframes feverSpin {
+  0% { transform: rotate(0deg) scale(1.5); }
+  100% { transform: rotate(360deg) scale(1.5); }
+}
 
 /* ============================================
    COLLECTION / GACHA SCREEN
@@ -878,6 +974,21 @@
   align-items: center;
   justify-content: center;
   gap: 16px;
+  transform-origin: bottom center;
+}
+
+.gacha-machine-box.shaking {
+  animation: gachaThrill 0.15s ease-in-out infinite alternate, gachaGlow 1s infinite alternate;
+}
+
+@keyframes gachaThrill {
+  0% { transform: rotate(-3deg) scale(0.98); }
+  100% { transform: rotate(3deg) scale(1.02); }
+}
+
+@keyframes gachaGlow {
+  0% { filter: drop-shadow(0 0 10px rgba(255, 215, 0, 0)); }
+  100% { filter: drop-shadow(0 0 30px rgba(255, 215, 0, 0.8)); }
 }
 
 .gacha-dome {
