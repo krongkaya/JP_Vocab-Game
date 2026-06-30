@@ -1,0 +1,442 @@
+/* ============================================
+   EGG NEKO SPRITE — Tall Round Style
+   ============================================ */
+
+.mochi-neko-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  transform-origin: center bottom;
+}
+
+.mochi-neko-scene {
+  position: relative;
+  width: 100px;
+  height: 95px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ===== TAIL ===== */
+.egg-tail {
+  position: absolute;
+  bottom: 12px;
+  right: 6px;
+  width: 16px;
+  height: 24px;
+  border-radius: 12px 12px 10px 10px;
+  border: 2.5px solid;
+  z-index: 1;
+  animation: eggTailWag 3s ease-in-out infinite;
+  transform-origin: bottom left;
+  transform: rotate(35deg);
+}
+@keyframes eggTailWag {
+  0%, 100% { transform: rotate(35deg); }
+  50% { transform: rotate(25deg); }
+}
+
+/* ===== EARS ===== */
+.egg-ear {
+  position: absolute;
+  top: 6px;
+  width: 20px;
+  height: 22px;
+  border: 2.5px solid;
+  z-index: 1;
+  overflow: hidden;
+}
+.ear-left {
+  left: 18px;
+  border-radius: 6px 20px 4px 4px;
+  transform: rotate(-10deg);
+}
+.ear-right {
+  right: 18px;
+  border-radius: 20px 6px 4px 4px;
+  transform: rotate(10deg);
+}
+.egg-ear-inner {
+  position: absolute;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 12px;
+  height: 14px;
+  border-radius: 6px 6px 0 0;
+}
+
+/* ===== BODY (EGG) ===== */
+.egg-body {
+  position: absolute;
+  bottom: 8px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 76px;
+  height: 76px;
+  border-radius: 46% 46% 40% 40%;
+  border: 2.5px solid;
+  z-index: 2;
+  overflow: hidden; 
+  box-shadow: inset 0 -4px 6px rgba(0,0,0,0.06);
+}
+
+/* Belly (Large) */
+.egg-belly {
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 58px;
+  height: 38px;
+  border-radius: 30px 30px 20px 20px;
+}
+
+/* ===== STRIPES ===== */
+.stripe {
+  position: absolute;
+  border-radius: 4px;
+}
+
+/* Top Stripes */
+.egg-stripes-top {
+  position: absolute;
+  top: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 20px;
+  height: 12px;
+}
+.egg-stripes-top .st1, .egg-stripes-top .st2, .egg-stripes-top .st3 {
+  width: 4px;
+}
+.egg-stripes-top .st1 { left: 0; height: 10px; transform: rotate(-15deg); }
+.egg-stripes-top .st2 { left: 8px; height: 12px; }
+.egg-stripes-top .st3 { right: 0; height: 10px; transform: rotate(15deg); }
+
+/* Side Stripes */
+.egg-stripes-side {
+  position: absolute;
+  top: 25px;
+  width: 10px;
+  height: 25px;
+}
+.egg-stripes-side.side-l { left: -2px; }
+.egg-stripes-side.side-r { right: -2px; }
+
+.egg-stripes-side .sl1, .egg-stripes-side .sl2, .egg-stripes-side .sl3,
+.egg-stripes-side .sr1, .egg-stripes-side .sr2, .egg-stripes-side .sr3 {
+  height: 4px;
+}
+
+.egg-stripes-side.side-l .sl1 { top: 0; width: 8px; transform: rotate(15deg); }
+.egg-stripes-side.side-l .sl2 { top: 9px; width: 10px; }
+.egg-stripes-side.side-l .sl3 { top: 18px; width: 8px; transform: rotate(-15deg); }
+
+.egg-stripes-side.side-r .sr1 { top: 0; right: 0; width: 8px; transform: rotate(-15deg); }
+.egg-stripes-side.side-r .sr2 { top: 9px; right: 0; width: 10px; }
+.egg-stripes-side.side-r .sr3 { top: 18px; right: 0; width: 8px; transform: rotate(15deg); }
+
+/* ===== FACE ===== */
+.egg-face {
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 3;
+}
+
+/* Eyes (Slightly larger, higher) */
+.egg-eyes {
+  position: absolute;
+  top: 32px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+}
+
+.egg-eye {
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  transition: all 0.1s;
+}
+.egg-eye.blink {
+  transform: scaleY(0.1);
+  border-radius: 2px;
+}
+
+/* Alternative Eyes */
+.egg-eye-happy {
+  width: 9px;
+  height: 4px;
+  border-top: 2px solid;
+  border-radius: 50px 50px 0 0;
+  margin-top: 2px;
+}
+.egg-eye-sad {
+  width: 8px;
+  height: 3px;
+  border-top: 2px solid;
+  border-radius: 50px 50px 0 0;
+  transform: translateY(2px) rotate(15deg);
+}
+.egg-eye-sad:first-child {
+  transform: translateY(2px) rotate(-15deg);
+}
+
+/* Blush */
+.egg-blush {
+  position: absolute;
+  top: 37px;
+  width: 12px;
+  height: 7px;
+  border-radius: 50%;
+  filter: blur(1px);
+}
+.blush-l { left: 14px; }
+.blush-r { right: 14px; }
+
+/* Mouth */
+.egg-mouth {
+  position: absolute;
+  top: 37px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 10px;
+  height: 5px;
+}
+.egg-mouth-sleep {
+  position: absolute;
+  top: 2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 6px;
+  height: 2.5px;
+  border-radius: 2px;
+}
+
+/* ===== PAWS ===== */
+.egg-paws {
+  position: absolute;
+  bottom: 0px;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  z-index: 4;
+}
+
+.egg-paw {
+  position: relative;
+  width: 12px;
+  height: 6px;
+  border-radius: 6px 6px 0 0;
+  border: 2px solid;
+  border-bottom: none;
+  background: white; /* matches belly if needed, or primary */
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 1.5px;
+  padding-bottom: 1px;
+}
+.paw-line {
+  width: 1.5px;
+  height: 3px;
+  border-radius: 1px;
+}
+
+/* ============================================
+   MOOD ANIMATIONS
+   ============================================ */
+
+/* === IDLE === */
+.mood-idle { animation: eggIdle 3s ease-in-out infinite; }
+@keyframes eggIdle {
+  0%, 100% { transform: scaleY(1); }
+  50% { transform: scaleY(0.97) translateY(2px); }
+}
+
+/* === WALK === */
+.mood-walk { animation: eggWalkBob 0.35s cubic-bezier(0.2, 0.8, 0.4, 1) infinite alternate; }
+@keyframes eggWalkBob {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+.mood-walk .egg-tail { animation: eggTailFast 0.35s infinite alternate; }
+@keyframes eggTailFast { 0% { transform: rotate(30deg); } 100% { transform: rotate(5deg); } }
+.mood-walk .paw-l { animation: eggPawWalk1 0.35s infinite alternate; }
+.mood-walk .paw-r { animation: eggPawWalk2 0.35s infinite alternate; }
+@keyframes eggPawWalk1 { 0% { transform: translateY(0); } 100% { transform: translateY(-2px); } }
+@keyframes eggPawWalk2 { 0% { transform: translateY(-2px); } 100% { transform: translateY(0); } }
+
+/* === HAPPY === */
+.mood-happy { animation: eggHappyJump 0.5s cubic-bezier(0.3, 1.5, 0.6, 1) infinite alternate; }
+@keyframes eggHappyJump {
+  0% { transform: translateY(0) scaleX(1.02) scaleY(0.98); }
+  100% { transform: translateY(-8px) scaleX(0.98) scaleY(1.02); }
+}
+.mood-happy .egg-tail { animation: eggTailFast 0.3s infinite alternate; }
+.mood-happy .egg-blush { filter: blur(2px); opacity: 1; transform: scale(1.3); }
+
+/* FX */
+.egg-fx-sparkles {
+  position: absolute;
+  top: -10px;
+  left: 0;
+  width: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+.egg-fx-sparkles .sparkle { position: absolute; font-size: 14px; opacity: 0; }
+.egg-fx-sparkles .s1 { left: 10px; animation: eggFloatUp 1.2s ease-out infinite; }
+.egg-fx-sparkles .s2 { left: 40px; top:-5px; font-size: 18px; animation: eggFloatUp 1.5s ease-out 0.4s infinite; }
+.egg-fx-sparkles .s3 { left: 70px; animation: eggFloatUp 1.1s ease-out 0.7s infinite; }
+@keyframes eggFloatUp {
+  0% { transform: translateY(5px) scale(0.5); opacity: 0; }
+  20% { opacity: 1; }
+  100% { transform: translateY(-15px) scale(1.2); opacity: 0; }
+}
+
+/* === EAT === */
+.mood-eat .egg-body { animation: eggEatBob 0.6s infinite; }
+@keyframes eggEatBob {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(3px) scaleY(0.95); }
+}
+
+/* Food FX */
+.egg-fx-food {
+  position: absolute;
+  bottom: 10px;
+  left: -15px;
+  z-index: 10;
+}
+.bite-fish { font-size: 18px; animation: eggFishMunch 0.6s infinite; }
+.bite-stars { position: absolute; top: -5px; right: -5px; font-size: 10px; opacity: 0; animation: eggFishStars 0.6s infinite; }
+@keyframes eggFishMunch {
+  0%, 100% { transform: scale(1) rotate(0deg); }
+  40% { transform: scale(0.8) rotate(-15deg); }
+}
+@keyframes eggFishStars {
+  0%, 100% { opacity: 0; transform: scale(0.5) translate(0,0); }
+  30% { opacity: 1; transform: scale(1) translate(10px, -10px); }
+  50% { opacity: 0; }
+}
+
+/* === SAD === */
+.mood-sad { animation: eggSadDroop 2.5s ease-in-out infinite; }
+@keyframes eggSadDroop {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(3px) scaleY(0.95); }
+}
+.mood-sad .ear-left { transform: rotate(-25deg) translateY(2px); }
+.mood-sad .ear-right { transform: rotate(25deg) translateY(2px); }
+.mood-sad .egg-tail { animation: none; transform: rotate(20deg); }
+
+/* Sad FX */
+.egg-fx-cry {
+  position: absolute;
+  top: 45px;
+  left: 0; width: 100%;
+  pointer-events: none;
+  z-index: 10;
+}
+.tear {
+  position: absolute;
+  width: 3px; height: 12px;
+  border-radius: 3px;
+  opacity: 0.6;
+}
+.ts-l { left: 34px; animation: eggTears 1.5s ease-in infinite; }
+.ts-r { right: 34px; animation: eggTears 1.5s ease-in 0.5s infinite; }
+@keyframes eggTears {
+  0% { height: 0; opacity: 0; transform: translateY(0); }
+  20% { height: 12px; opacity: 0.8; }
+  100% { height: 3px; opacity: 0; transform: translateY(15px); }
+}
+.gloom-lines {
+  position: absolute;
+  top: -35px; left: 10px;
+  font-size: 14px; color: #78909c; font-weight: 900; letter-spacing: -2px;
+  opacity: 0.5;
+  animation: eggGloom 2s infinite alternate;
+}
+@keyframes eggGloom {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(4px); }
+}
+
+/* === SLEEP === */
+.mood-sleep { animation: eggSleepBreathe 3s ease-in-out infinite; }
+@keyframes eggSleepBreathe {
+  0%, 100% { transform: translateY(0) scaleY(1) scaleX(1); }
+  50% { transform: translateY(3px) scaleY(0.95) scaleX(1.02); }
+}
+.mood-sleep .egg-tail { animation: eggTailWag 4s ease-in-out infinite; }
+
+/* Sleep FX */
+.egg-fx-sleep {
+  position: absolute;
+  top: 25px;
+  right: 15px;
+  z-index: 10;
+}
+.snot-bubble {
+  position: absolute;
+  bottom: -15px; left: -15px;
+  width: 10px; height: 10px;
+  border-radius: 50%;
+  border: 1.5px solid;
+  background: rgba(255,255,255,0.7);
+  animation: eggSnot 3s ease-in-out infinite;
+}
+@keyframes eggSnot {
+  0%, 100% { transform: scale(1); opacity: 0.5; }
+  50% { transform: scale(1.6); opacity: 0.8; }
+}
+.zzz-text {
+  color: #81d4fa;
+  font-weight: 900;
+  font-size: 12px;
+  font-style: italic;
+  text-shadow: 1px 1px 0 #fff, -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff;
+  animation: eggZzzText 3s ease-in-out infinite;
+}
+@keyframes eggZzzText {
+  0% { transform: translate(0, 0) scale(0.8); opacity: 0; }
+  50% { opacity: 1; }
+  100% { transform: translate(12px, -15px) scale(1.5); opacity: 0; }
+}
+
+/* ===== SHADOW ===== */
+.egg-shadow {
+  width: 66px;
+  height: 8px;
+  background: rgba(0,0,0,0.1);
+  border-radius: 50%;
+  margin-top: 2px;
+  transition: all 0.3s;
+}
+.mood-walk + .egg-shadow { animation: eggShadowBob 0.35s infinite alternate; }
+.mood-happy + .egg-shadow { animation: eggShadowHappy 0.5s cubic-bezier(0.3, 1.5, 0.6, 1) infinite alternate; }
+@keyframes eggShadowBob { 0% { transform: scaleX(1); } 100% { transform: scaleX(0.9); } }
+@keyframes eggShadowHappy { 0% { transform: scaleX(1); opacity: 1; } 100% { transform: scaleX(0.7); opacity: 0.5; } }
+
+/* ===== LABEL ===== */
+.egg-label {
+  margin-top: 8px;
+  font-size: 11px;
+  font-weight: 800;
+  background: rgba(255,255,255,0.9);
+  padding: 4px 12px;
+  border-radius: 20px;
+  border: 2px solid;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(255,182,193,0.3);
+}
