@@ -44,7 +44,6 @@ export default function BattleScreen({ onBack }: Props) {
   const [question, setQuestion] = useState<QuestionPayload | null>(null);
   const [questionIndex, setQuestionIndex] = useState(0);
   const [totalQuestions, setTotalQuestions] = useState(0);
-  const [timeLimit, setTimeLimit] = useState(15);
   const [timeLeft, setTimeLeft] = useState(15);
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null);
   const [myResult, setMyResult] = useState<{ isCorrect: boolean; pointsGained: number } | null>(null);
@@ -104,7 +103,6 @@ export default function BattleScreen({ onBack }: Props) {
       setQuestion(payload.question);
       setQuestionIndex(payload.questionIndex);
       setTotalQuestions(payload.totalQuestions);
-      setTimeLimit(payload.timeLimit);
       setTimeLeft(payload.timeLimit);
       setSelectedAnswer(null);
       setMyResult(null);

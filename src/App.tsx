@@ -1044,7 +1044,7 @@ function App() {
           <button className={`bottom-nav-btn ${screen === 'map' ? 'active' : ''}`} onClick={() => changeScreen('map')}>
             <Map size={20} /> ด่าน
           </button>
-          <button className={`bottom-nav-btn ${screen === 'battle' ? 'active' : ''}`} onClick={() => changeScreen('battle')}>
+          <button className="bottom-nav-btn" onClick={() => changeScreen('battle')}>
             <Swords size={20} /> แข่ง
           </button>
           <button className={`bottom-nav-btn ${screen === 'collection' ? 'active' : ''}`} onClick={() => changeScreen('collection')}>
